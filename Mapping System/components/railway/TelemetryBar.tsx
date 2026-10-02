@@ -16,7 +16,7 @@ export const TelemetryBar: React.FC<TelemetryBarProps> = ({
   simulationState,
   destinationEta
 }) => {
-  const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(true);
 
   // Robust data extraction with safe fallbacks
   const trainNumber = train.train_number || (train as any).number || '12304';
@@ -83,7 +83,7 @@ export const TelemetryBar: React.FC<TelemetryBarProps> = ({
 
         {/* Dropdown Toggle indicator */}
         <div className="flex items-center gap-1.5 text-slate-500 shrink-0 ml-2">
-          <span className="text-[10px] sm:text-[11px] font-mono font-medium hidden sm:inline text-slate-400">
+          <span className={`text-[10px] sm:text-[11px] font-mono hidden sm:inline ${isCollapsed ? 'font-bold text-slate-700' : 'font-semibold text-slate-500'}`}>
             {isCollapsed ? 'Expand' : 'Collapse'}
           </span>
           <div className="w-6 h-6 rounded-md bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-600 transition-colors">
