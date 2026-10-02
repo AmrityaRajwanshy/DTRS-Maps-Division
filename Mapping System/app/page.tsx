@@ -754,7 +754,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Dedicated State Territory & Divisions Legend (Placed Separately!) */}
-        {showTrainRoute && showStateDivisions && uniqueStatesOnRoute.length > 0 && (
+        {showStateDivisions && uniqueStatesOnRoute.length > 0 && (
           <div className="z-[430] bg-slate-50 border-b border-slate-200/90 px-3 py-1.5 shrink-0 shadow-2xs">
             <StateLegendBar
               uniqueStatesOnRoute={uniqueStatesOnRoute}

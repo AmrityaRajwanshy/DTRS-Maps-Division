@@ -149,11 +149,11 @@ export const MapControlsBar: React.FC<MapControlsBarProps> = ({
           title="Toggle Station-to-Station Block Division Segments (TRETA TS IDs)"
           className={`px-3 py-1.5 rounded-xl transition-all flex items-center gap-1.5 text-xs font-semibold border cursor-pointer active:scale-95 whitespace-nowrap shadow-xs ${
             showStationDivisions
-              ? 'bg-[#172b54] hover:bg-[#101e3d] text-white border-[#172b54]'
+              ? 'bg-indigo-600 hover:bg-indigo-500 text-white border-indigo-500 ring-1 ring-indigo-300'
               : 'bg-white hover:bg-slate-50 border-slate-200 text-slate-600'
           }`}
         >
-          <Layers className={`w-3.5 h-3.5 ${showStationDivisions ? 'text-white' : 'text-[#172b54]'}`} />
+          <Layers className={`w-3.5 h-3.5 ${showStationDivisions ? 'text-white' : 'text-indigo-600'}`} />
           <span>Blocks</span>
         </button>
 

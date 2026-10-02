@@ -78,9 +78,11 @@ export const RailwayMap: React.FC<RailwayMapProps> = ({
   const mapRef = useRef<L.Map | null>(null);
   const routePolylineRef = useRef<L.Polyline | null>(null);
   const glowPolylineRef = useRef<L.Polyline | null>(null);
-  const divisionPolylinesRef = useRef<L.Polyline[]>([]);
   const markersRef = useRef<L.Marker[]>([]);
-  const divisionMarkersRef = useRef<L.Marker[]>([]);
+  const statePolylinesRef = useRef<L.Polyline[]>([]);
+  const stateMarkersRef = useRef<L.Marker[]>([]);
+  const blockPolylinesRef = useRef<L.Polyline[]>([]);
+  const blockMarkersRef = useRef<L.Marker[]>([]);
   const fleetMarkersRef = useRef<L.Marker[]>([]);
   const trainMarkerRef = useRef<L.Marker | null>(null);
 
@@ -170,6 +172,14 @@ export const RailwayMap: React.FC<RailwayMapProps> = ({
         try { map.removeLayer(trainMarkerRef.current); } catch (_) {}
         trainMarkerRef.current = null;
       }
+      statePolylinesRef.current.forEach(p => { try { map.removeLayer(p); } catch (_) {} });
+      statePolylinesRef.current = [];
+      stateMarkersRef.current.forEach(m => { try { map.removeLayer(m); } catch (_) {} });
+      stateMarkersRef.current = [];
+      blockPolylinesRef.current.forEach(p => { try { map.removeLayer(p); } catch (_) {} });
+      blockPolylinesRef.current = [];
+      blockMarkersRef.current.forEach(m => { try { map.removeLayer(m); } catch (_) {} });
+      blockMarkersRef.current = [];
       map.remove();
       mapRef.current = null;
     };
@@ -383,335 +393,379 @@ export const RailwayMap: React.FC<RailwayMapProps> = ({
     });
   }, [stops, osmTrackPoints, showStateDivisions, onSelectStation, showTrainRoute]);
 
-  // 4. Render Railway Track Divisions (State Border Territories & Station Block Segments)
+  // 4A. Render State Territorial Divisions & Cross-Border Transitions
   useEffect(() => {
     const map = mapRef.current;
     if (!map) return;
 
-    // Clean up previous division layers
-    divisionPolylinesRef.current.forEach(p => {
+    // Clean up previous state division layers
+    statePolylinesRef.current.forEach(p => {
       try { map.removeLayer(p); } catch (_) {}
     });
-    divisionPolylinesRef.current = [];
-    divisionMarkersRef.current.forEach(m => {
+    statePolylinesRef.current = [];
+    stateMarkersRef.current.forEach(m => {
       try { map.removeLayer(m); } catch (_) {}
     });
-    divisionMarkersRef.current = [];
+    stateMarkersRef.current = [];
 
-    if (!stops || stops.length < 2) return;
+    if (!showStateDivisions || !stops || stops.length < 2) return;
 
-    // A. STATE TERRITORIES & PROMINENT CROSS-BORDER LINES
-    if (showStateDivisions) {
-      // 1. Draw each inter-station track section in that state's distinct, vibrant color
-      for (let i = 0; i < stops.length - 1; i++) {
-        const s1 = stops[i];
-        const s2 = stops[i + 1];
-        const state1 = s1.state || 'Territory';
-        const state2 = s2.state || 'Territory';
-        const color1 = getStateColor(state1);
-        const color2 = getStateColor(state2);
-        const key1 = getStateBorderKey(state1);
-        const key2 = getStateBorderKey(state2);
-        const isBorderCrossing = state1 !== state2;
+    // Draw each inter-station track section in that state's distinct, vibrant color
+    for (let i = 0; i < stops.length - 1; i++) {
+      const s1 = stops[i];
+      const s2 = stops[i + 1];
+      const state1 = s1.state || 'Territory';
+      const state2 = s2.state || 'Territory';
+      const color1 = getStateColor(state1);
+      const color2 = getStateColor(state2);
+      const key1 = getStateBorderKey(state1);
+      const key2 = getStateBorderKey(state2);
+      const isBorderCrossing = state1 !== state2;
 
-        if (!isBorderCrossing) {
-          // Regular internal state railway track segment
-          const curvedCoords = generateCurvedTrackBetween(
-            [s1.latitude, s1.longitude],
-            [s2.latitude, s2.longitude],
-            DEFAULT_TRACK_SEGMENTS
-          );
+      if (!isBorderCrossing) {
+        // Regular internal state railway track segment
+        const curvedCoords = generateCurvedTrackBetween(
+          [s1.latitude, s1.longitude],
+          [s2.latitude, s2.longitude],
+          DEFAULT_TRACK_SEGMENTS
+        );
 
-          // Outer ambient state color glow
-          const glow = L.polyline(curvedCoords, {
-            color: color1,
-            weight: 9,
-            opacity: 0.4,
-            lineCap: 'round',
-            lineJoin: 'round'
-          }).addTo(map);
+        // Outer ambient state color glow
+        const glow = L.polyline(curvedCoords, {
+          color: color1,
+          weight: 9,
+          opacity: 0.4,
+          lineCap: 'round',
+          lineJoin: 'round'
+        }).addTo(map);
 
-          // Vibrant core railway line
-          const line = L.polyline(curvedCoords, {
-            color: color1,
-            weight: 5,
-            opacity: 0.95,
-            lineCap: 'round',
-            lineJoin: 'round'
-          }).addTo(map);
+        // Vibrant core railway line
+        const line = L.polyline(curvedCoords, {
+          color: color1,
+          weight: 5,
+          opacity: 0.95,
+          lineCap: 'round',
+          lineJoin: 'round'
+        }).addTo(map);
 
-          // Inner railroad ties / track dash
-          const ties = L.polyline(curvedCoords, {
-            color: '#ffffff',
-            weight: 1.5,
-            opacity: 0.65,
-            dashArray: '5, 8'
-          }).addTo(map);
+        // Inner railroad ties / track dash
+        const ties = L.polyline(curvedCoords, {
+          color: '#ffffff',
+          weight: 1.5,
+          opacity: 0.65,
+          dashArray: '5, 8'
+        }).addTo(map);
 
-          line.bindTooltip(
-            `<div style="font-family: monospace; font-size: 11px; padding: 2px;">
-              <b style="color: ${color1}; font-size: 12px;">State Territory: ${state1} (${key1})</b><br/>
-              <span style="color: #cbd5e1;">Section: ${s1.station_name} to ${s2.station_name} (${Math.round((s2.distance_km || 0) - (s1.distance_km || 0))} km)</span>
-            </div>`,
-            { sticky: true, className: 'station-hover-tooltip' }
-          );
+        line.bindTooltip(
+          `<div style="font-family: monospace; font-size: 11px; padding: 2px;">
+            <b style="color: ${color1}; font-size: 12px;">State Territory: ${state1} (${key1})</b><br/>
+            <span style="color: #cbd5e1;">Section: ${s1.station_name} to ${s2.station_name} (${Math.round((s2.distance_km || 0) - (s1.distance_km || 0))} km)</span>
+          </div>`,
+          { sticky: true, className: 'station-hover-tooltip' }
+        );
 
-          divisionPolylinesRef.current.push(glow, line, ties);
-        } else {
-          // INTER-STATE BORDER CROSSING SECTION:
-          // Part 1: from station 1 to the state border point in color 1 (state 1)
-          // Part 2: from the state border point to station 2 in color 2 (state 2)
-          const matchedCross = stateCrossings.find(
-            c => (c.from_station_code === s1.station_code && c.to_station_code === s2.station_code) ||
-                 (c.from_state === state1 && c.to_state === state2)
-          );
+        statePolylinesRef.current.push(glow, line, ties);
+      } else {
+        // INTER-STATE BORDER CROSSING SECTION:
+        const matchedCross = stateCrossings.find(
+          c => (c.from_station_code === s1.station_code && c.to_station_code === s2.station_code) ||
+               (c.from_state === state1 && c.to_state === state2)
+        );
 
-          const borderLat = matchedCross?.latitude || (s1.latitude + s2.latitude) / 2;
-          const borderLng = matchedCross?.longitude || (s1.longitude + s2.longitude) / 2;
-          const borderPt: [number, number] = [borderLat, borderLng];
-          const approxKm = matchedCross?.approx_km || Math.round(((s1.distance_km || 0) + (s2.distance_km || 0)) / 2);
+        const borderLat = matchedCross?.latitude || (s1.latitude + s2.latitude) / 2;
+        const borderLng = matchedCross?.longitude || (s1.longitude + s2.longitude) / 2;
+        const borderPt: [number, number] = [borderLat, borderLng];
+        const approxKm = matchedCross?.approx_km || Math.round(((s1.distance_km || 0) + (s2.distance_km || 0)) / 2);
 
-          // Sub-track 1: s1 -> border (State 1 color)
-          const subCoords1 = generateCurvedTrackBetween([s1.latitude, s1.longitude], borderPt, 4);
-          const glow1 = L.polyline(subCoords1, {
-            color: color1,
-            weight: 9,
-            opacity: 0.4,
-            lineCap: 'round'
-          }).addTo(map);
+        // Sub-track 1: s1 -> border (State 1 color)
+        const subCoords1 = generateCurvedTrackBetween([s1.latitude, s1.longitude], borderPt, 4);
+        const glow1 = L.polyline(subCoords1, {
+          color: color1,
+          weight: 9,
+          opacity: 0.4,
+          lineCap: 'round'
+        }).addTo(map);
 
-          const line1 = L.polyline(subCoords1, {
-            color: color1,
-            weight: 5,
-            opacity: 0.95
-          }).addTo(map);
+        const line1 = L.polyline(subCoords1, {
+          color: color1,
+          weight: 5,
+          opacity: 0.95
+        }).addTo(map);
 
-          const ties1 = L.polyline(subCoords1, {
-            color: '#ffffff',
-            weight: 1.5,
-            opacity: 0.65,
-            dashArray: '5, 8'
-          }).addTo(map);
+        const ties1 = L.polyline(subCoords1, {
+          color: '#ffffff',
+          weight: 1.5,
+          opacity: 0.65,
+          dashArray: '5, 8'
+        }).addTo(map);
 
-          line1.bindTooltip(
-            `<div style="font-family: monospace; font-size: 11px;">
-              <b style="color: ${color1}; font-size: 12px;">State Territory: ${state1} (${key1})</b><br/>
-              <span style="color: #cbd5e1;">Approaching Inter-State Border to ${state2}</span>
-            </div>`,
-            { sticky: true, className: 'station-hover-tooltip' }
-          );
+        line1.bindTooltip(
+          `<div style="font-family: monospace; font-size: 11px;">
+            <b style="color: ${color1}; font-size: 12px;">State Territory: ${state1} (${key1})</b><br/>
+            <span style="color: #cbd5e1;">Approaching Inter-State Border to ${state2}</span>
+          </div>`,
+          { sticky: true, className: 'station-hover-tooltip' }
+        );
 
-          // Sub-track 2: border -> s2 (State 2 color)
-          const subCoords2 = generateCurvedTrackBetween(borderPt, [s2.latitude, s2.longitude], 4);
-          const glow2 = L.polyline(subCoords2, {
-            color: color2,
-            weight: 9,
-            opacity: 0.4,
-            lineCap: 'round'
-          }).addTo(map);
+        // Sub-track 2: border -> s2 (State 2 color)
+        const subCoords2 = generateCurvedTrackBetween(borderPt, [s2.latitude, s2.longitude], 4);
+        const glow2 = L.polyline(subCoords2, {
+          color: color2,
+          weight: 9,
+          opacity: 0.4,
+          lineCap: 'round'
+        }).addTo(map);
 
-          const line2 = L.polyline(subCoords2, {
-            color: color2,
-            weight: 5,
-            opacity: 0.95
-          }).addTo(map);
+        const line2 = L.polyline(subCoords2, {
+          color: color2,
+          weight: 5,
+          opacity: 0.95
+        }).addTo(map);
 
-          const ties2 = L.polyline(subCoords2, {
-            color: '#ffffff',
-            weight: 1.5,
-            opacity: 0.65,
-            dashArray: '5, 8'
-          }).addTo(map);
+        const ties2 = L.polyline(subCoords2, {
+          color: '#ffffff',
+          weight: 1.5,
+          opacity: 0.65,
+          dashArray: '5, 8'
+        }).addTo(map);
 
-          line2.bindTooltip(
-            `<div style="font-family: monospace; font-size: 11px;">
-              <b style="color: ${color2}; font-size: 12px;">State Territory: ${state2} (${key2})</b><br/>
-              <span style="color: #cbd5e1;">Entered from ${state1} to Towards ${s2.station_name}</span>
-            </div>`,
-            { sticky: true, className: 'station-hover-tooltip' }
-          );
+        line2.bindTooltip(
+          `<div style="font-family: monospace; font-size: 11px;">
+            <b style="color: ${color2}; font-size: 12px;">State Territory: ${state2} (${key2})</b><br/>
+            <span style="color: #cbd5e1;">Entered from ${state1} towards ${s2.station_name}</span>
+          </div>`,
+          { sticky: true, className: 'station-hover-tooltip' }
+        );
 
-          divisionPolylinesRef.current.push(glow1, line1, ties1, glow2, line2, ties2);
+        statePolylinesRef.current.push(glow1, line1, ties1, glow2, line2, ties2);
 
-          // 2. PROMINENT PURPLE INTER-STATE TRANSITION ON ROUTE
-          // Draw purple waypoint indicator right on the railway route
-          const trackNodeIcon = L.divIcon({
-            className: 'interstate-transition-node',
+        // PROMINENT PURPLE INTER-STATE TRANSITION ON ROUTE
+        const trackNodeIcon = L.divIcon({
+          className: 'interstate-transition-node',
+          html: `
+            <div class="relative flex items-center justify-center pointer-events-auto">
+              <div class="w-7 h-7 rounded-full bg-purple-500/35 animate-ping absolute"></div>
+              <div class="w-5 h-5 rounded-full bg-purple-600 border-2 border-white shadow-xl flex items-center justify-center ring-2 ring-purple-400">
+                <div class="w-1.5 h-1.5 rounded-full bg-white"></div>
+              </div>
+            </div>
+          `,
+          iconSize: [22, 22],
+          iconAnchor: [11, 11]
+        });
+        const trackNode = L.marker(borderPt, { icon: trackNodeIcon, zIndexOffset: 1550 }).addTo(map);
+        stateMarkersRef.current.push(trackNode);
+
+        // Perpendicular state border division line drawn across the track in PURPLE
+        const dLat = s2.latitude - s1.latitude;
+        const dLng = s2.longitude - s1.longitude;
+        const len = Math.hypot(dLat, dLng) || 0.01;
+        const pLat = -dLng / len;
+        const pLng = dLat / len;
+        const span = 0.16; // spans ~16km across the track
+
+        const borderP1: [number, number] = [borderLat - pLat * span, borderLng - pLng * span];
+        const borderP2: [number, number] = [borderLat + pLat * span, borderLng + pLng * span];
+
+        // Vibrant Purple Border Barrier Crossing Line
+        const borderGlowLine = L.polyline([borderP1, borderP2], {
+          color: '#9333ea',
+          weight: 14,
+          opacity: 0.55,
+          lineCap: 'round'
+        }).addTo(map);
+
+        const borderDashLine = L.polyline([borderP1, borderP2], {
+          color: '#ffffff',
+          weight: 4.5,
+          opacity: 0.98,
+          dashArray: '8, 6',
+          lineCap: 'round'
+        }).addTo(map);
+
+        borderDashLine.bindTooltip(
+          `<div style="font-family: monospace; font-size: 11px; font-weight: bold; text-align: center;">
+            <span style="color: #9333ea; font-size: 12px;">INTER-STATE TRANSITION</span><br/>
+            <span style="color: ${color1}; font-weight: bold;">${state1} (${key1})</span>
+            <span style="color: #9333ea; margin: 0 4px;">to</span>
+            <span style="color: ${color2}; font-weight: bold;">${state2} (${key2})</span>
+          </div>`,
+          { sticky: true, className: 'station-hover-tooltip' }
+        );
+
+        statePolylinesRef.current.push(borderGlowLine, borderDashLine);
+
+        // Border Boundary Pillar Posts in Purple
+        [borderP1, borderP2].forEach((postPt, pIdx) => {
+          const postIcon = L.divIcon({
+            className: 'border-pillar-post',
             html: `
-              <div class="relative flex items-center justify-center pointer-events-auto">
-                <div class="w-7 h-7 rounded-full bg-purple-500/35 animate-ping absolute"></div>
-                <div class="w-5 h-5 rounded-full bg-purple-600 border-2 border-white shadow-xl flex items-center justify-center ring-2 ring-purple-400">
+              <div class="relative flex items-center justify-center">
+                <div class="w-4 h-4 rounded-full bg-purple-600 border-2 border-white shadow-xl flex items-center justify-center ring-2 ring-purple-300">
                   <div class="w-1.5 h-1.5 rounded-full bg-white"></div>
                 </div>
               </div>
             `,
-            iconSize: [22, 22],
-            iconAnchor: [11, 11]
+            iconSize: [16, 16],
+            iconAnchor: [8, 8]
           });
-          const trackNode = L.marker(borderPt, { icon: trackNodeIcon, zIndexOffset: 1550 }).addTo(map);
-          divisionMarkersRef.current.push(trackNode);
-
-          // Perpendicular state border division line drawn across the track in PURPLE
-          const dLat = s2.latitude - s1.latitude;
-          const dLng = s2.longitude - s1.longitude;
-          const len = Math.hypot(dLat, dLng) || 0.01;
-          const pLat = -dLng / len;
-          const pLng = dLat / len;
-          const span = 0.16; // spans ~16km across the track
-
-          const borderP1: [number, number] = [borderLat - pLat * span, borderLng - pLng * span];
-          const borderP2: [number, number] = [borderLat + pLat * span, borderLng + pLng * span];
-
-          // Vibrant Purple Border Barrier Crossing Line
-          const borderGlowLine = L.polyline([borderP1, borderP2], {
-            color: '#9333ea',
-            weight: 14,
-            opacity: 0.55,
-            lineCap: 'round'
-          }).addTo(map);
-
-          const borderDashLine = L.polyline([borderP1, borderP2], {
-            color: '#ffffff',
-            weight: 4.5,
-            opacity: 0.98,
-            dashArray: '8, 6',
-            lineCap: 'round'
-          }).addTo(map);
-
-          borderDashLine.bindTooltip(
-            `<div style="font-family: monospace; font-size: 11px; font-weight: bold; text-align: center;">
-              <span style="color: #9333ea; font-size: 12px;">INTER-STATE TRANSITION</span><br/>
-              <span style="color: ${color1}; font-weight: bold;">${state1} (${key1})</span>
-              <span style="color: #9333ea; margin: 0 4px;">to</span>
-              <span style="color: ${color2}; font-weight: bold;">${state2} (${key2})</span>
-            </div>`,
-            { sticky: true, className: 'station-hover-tooltip' }
+          const postMarker = L.marker(postPt, { icon: postIcon }).addTo(map);
+          postMarker.bindTooltip(
+            `<div style="font-family: monospace; font-size: 10px; color: #9333ea; font-weight: bold;">State Transition Pillar ${pIdx === 0 ? 'Left' : 'Right'}</div>`,
+            { className: 'station-hover-tooltip' }
           );
+          stateMarkersRef.current.push(postMarker);
+        });
 
-          divisionPolylinesRef.current.push(borderGlowLine, borderDashLine);
-
-          // Border Boundary Pillar Posts in Purple
-          [borderP1, borderP2].forEach((postPt, pIdx) => {
-            const postIcon = L.divIcon({
-              className: 'border-pillar-post',
-              html: `
-                <div class="relative flex items-center justify-center">
-                  <div class="w-4 h-4 rounded-full bg-purple-600 border-2 border-white shadow-xl flex items-center justify-center ring-2 ring-purple-300">
-                    <div class="w-1.5 h-1.5 rounded-full bg-white"></div>
-                  </div>
-                </div>
-              `,
-              iconSize: [16, 16],
-              iconAnchor: [8, 8]
-            });
-            const postMarker = L.marker(postPt, { icon: postIcon }).addTo(map);
-            postMarker.bindTooltip(
-              `<div style="font-family: monospace; font-size: 10px; color: #9333ea; font-weight: bold;">State Transition Pillar ${pIdx === 0 ? 'Left' : 'Right'}</div>`,
-              { className: 'station-hover-tooltip' }
-            );
-            divisionMarkersRef.current.push(postMarker);
-          });
-
-          // 3. Purple Inter-State Transition Checkpoint Badge at the Center Crossing Point
-          const crossHtml = `
-            <div class="relative flex items-center justify-center cursor-pointer group select-none">
-              <div class="absolute w-12 h-12 rounded-full bg-purple-500/35 animate-ping"></div>
-              <div class="relative px-3 py-1 rounded-full bg-white/98 border-2 border-purple-600 shadow-xl flex items-center gap-1.5 font-mono text-[9px] font-black tracking-wide group-hover:scale-115 transition-transform text-slate-900 whitespace-nowrap">
-                <span style="color: ${color1}; font-weight: 800;">● ${key1.replace('SB-', '')}</span>
-                <span class="bg-purple-100 text-purple-900 text-[8px] font-black px-1.5 py-0.5 rounded border border-purple-300 uppercase tracking-wide whitespace-nowrap">TRANSITION to</span>
-                <span style="color: ${color2}; font-weight: 800;">● ${key2.replace('SB-', '')}</span>
-              </div>
-              <div class="absolute -bottom-5 whitespace-nowrap bg-purple-50 text-purple-900 font-mono text-[8px] font-bold px-1.5 py-0.5 rounded border border-purple-300 shadow-sm">
-                ~${approxKm} km
-              </div>
+        // Purple Inter-State Transition Checkpoint Badge at the Center Crossing Point
+        const crossHtml = `
+          <div class="relative flex items-center justify-center cursor-pointer group select-none">
+            <div class="absolute w-12 h-12 rounded-full bg-purple-500/35 animate-ping"></div>
+            <div class="relative px-3 py-1 rounded-full bg-white/98 border-2 border-purple-600 shadow-xl flex items-center gap-1.5 font-mono text-[9px] font-black tracking-wide group-hover:scale-115 transition-transform text-slate-900 whitespace-nowrap">
+              <span style="color: ${color1}; font-weight: 800;">● ${key1.replace('SB-', '')}</span>
+              <span class="bg-purple-100 text-purple-900 text-[8px] font-black px-1.5 py-0.5 rounded border border-purple-300 uppercase tracking-wide whitespace-nowrap">TRANSITION to</span>
+              <span style="color: ${color2}; font-weight: 800;">● ${key2.replace('SB-', '')}</span>
             </div>
-          `;
-
-          const crossIcon = L.divIcon({
-            className: 'state-border-marker',
-            html: crossHtml,
-            iconSize: [160, 30],
-            iconAnchor: [80, 15]
-          });
-
-          const crossMarker = L.marker([borderLat, borderLng], { icon: crossIcon, zIndexOffset: 1600 }).addTo(map);
-
-          crossMarker.bindPopup(`
-            <div style="font-family: system-ui, sans-serif; min-width: 260px; padding: 10px; color: #0f172a;">
-              <div style="display: flex; align-items: center; gap: 6px; font-weight: 800; font-size: 13px; color: #7e22ce; border-bottom: 1px solid #e2e8f0; padding-bottom: 5px; margin-bottom: 8px;">
-                <span>INTER-STATE TRANSITION</span>
-              </div>
-              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; background: #fdf4ff; padding: 6px 8px; border-radius: 6px; border: 1px solid #f0abfc;">
-                <span style="color: ${color1}; font-weight: bold; font-size: 12px;">${state1} (${key1})</span>
-                <span style="color: #7e22ce; font-weight: bold; font-size: 11px;">TRANSITION to</span>
-                <span style="color: ${color2}; font-weight: bold; font-size: 12px;">${state2} (${key2})</span>
-              </div>
-              <div style="font-size: 11px; color: #475569; margin-bottom: 4px;">
-                Section: <b style="color: #0f172a;">${s1.station_name} to ${s2.station_name}</b>
-              </div>
-              <div style="font-size: 10px; font-family: monospace; color: #7e22ce; border-top: 1px dashed #e9d5ff; padding-top: 5px; margin-top: 6px; font-weight: bold;">
-                Milestone: ~${approxKm} KM from Origin Station
-              </div>
-            </div>
-          `, { maxWidth: 300 });
-
-          divisionMarkersRef.current.push(crossMarker);
-        }
-      }
-    }
-
-    // B. STATION-TO-STATION BLOCK DIVISIONS
-    if (showStationDivisions) {
-      for (let i = 0; i < stops.length - 1; i++) {
-        const s1 = stops[i];
-        const s2 = stops[i + 1];
-        const midLat = (s1.latitude + s2.latitude) / 2;
-        const midLng = (s1.longitude + s2.longitude) / 2;
-        const segDist = Math.max(0, (s2.distance_km || 0) - (s1.distance_km || 0));
-
-        const matchedDiv = routeDivisions.find(
-          d => d.from_station_code === s1.station_code && d.to_station_code === s2.station_code
-        );
-        const segmentId = matchedDiv?.treta_segment_number || `TS-${i + 1}`;
-
-        // Check if train is currently inside this segment
-        const isActiveSegment =
-          (liveRailRadarData && liveRailRadarData.current_station_code === s1.station_code) ||
-          (simulationState && simulationState.current_station.code === s1.station_code);
-
-        const segHtml = `
-          <div class="relative flex items-center justify-center pointer-events-auto cursor-pointer">
-            <div class="whitespace-nowrap px-1.5 py-0.5 rounded font-mono text-[8px] font-bold border shadow-sm ${
-              isActiveSegment
-                ? 'bg-sky-600 text-white border-sky-700 ring-2 ring-sky-300'
-                : 'bg-white/95 text-slate-800 border-slate-300 hover:border-sky-500'
-            }">
-              ${segmentId} • ${segDist}km
+            <div class="absolute -bottom-5 whitespace-nowrap bg-purple-50 text-purple-900 font-mono text-[8px] font-bold px-1.5 py-0.5 rounded border border-purple-300 shadow-sm">
+              ~${approxKm} km
             </div>
           </div>
         `;
 
-        const segIcon = L.divIcon({
-          className: 'block-division-chip',
-          html: segHtml,
-          iconSize: [60, 16],
-          iconAnchor: [30, 8]
+        const crossIcon = L.divIcon({
+          className: 'state-border-marker',
+          html: crossHtml,
+          iconSize: [160, 30],
+          iconAnchor: [80, 15]
         });
 
-        const segMarker = L.marker([midLat, midLng], { icon: segIcon, zIndexOffset: 1200 }).addTo(map);
+        const crossMarker = L.marker([borderLat, borderLng], { icon: crossIcon, zIndexOffset: 1600 }).addTo(map);
 
-        segMarker.bindTooltip(`
-          <div style="font-family: monospace; font-size: 10px;">
-            <b>Division: ${segmentId}</b><br/>
-            ${s1.station_name} to ${s2.station_name} (${segDist} km)<br/>
-            State: ${s1.state}
+        crossMarker.bindPopup(`
+          <div style="font-family: system-ui, sans-serif; min-width: 260px; padding: 10px; color: #0f172a;">
+            <div style="display: flex; align-items: center; gap: 6px; font-weight: 800; font-size: 13px; color: #7e22ce; border-bottom: 1px solid #e2e8f0; padding-bottom: 5px; margin-bottom: 8px;">
+              <span>INTER-STATE TRANSITION</span>
+            </div>
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; background: #fdf4ff; padding: 6px 8px; border-radius: 6px; border: 1px solid #f0abfc;">
+              <span style="color: ${color1}; font-weight: bold; font-size: 12px;">${state1} (${key1})</span>
+              <span style="color: #7e22ce; font-weight: bold; font-size: 11px;">TRANSITION to</span>
+              <span style="color: ${color2}; font-weight: bold; font-size: 12px;">${state2} (${key2})</span>
+            </div>
+            <div style="font-size: 11px; color: #475569; margin-bottom: 4px;">
+              Section: <b style="color: #0f172a;">${s1.station_name} to ${s2.station_name}</b>
+            </div>
+            <div style="font-size: 10px; font-family: monospace; color: #7e22ce; border-top: 1px dashed #e9d5ff; padding-top: 5px; margin-top: 6px; font-weight: bold;">
+              Milestone: ~${approxKm} KM from Origin Station
+            </div>
           </div>
-        `, { direction: 'top', offset: [0, -10] });
+        `, { maxWidth: 300 });
 
-        divisionMarkersRef.current.push(segMarker);
+        stateMarkersRef.current.push(crossMarker);
       }
     }
-  }, [stops, showStateDivisions, showStationDivisions, stateCrossings, routeDivisions, liveRailRadarData, simulationState, showTrainRoute]);
+  }, [stops, showStateDivisions, stateCrossings]);
+
+  // 4B. Render Station-to-Station Block Divisions (TRETA TS Segments)
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+
+    // Clean up previous block division layers
+    blockPolylinesRef.current.forEach(p => {
+      try { map.removeLayer(p); } catch (_) {}
+    });
+    blockPolylinesRef.current = [];
+    blockMarkersRef.current.forEach(m => {
+      try { map.removeLayer(m); } catch (_) {}
+    });
+    blockMarkersRef.current = [];
+
+    if (!showStationDivisions || !stops || stops.length < 2) return;
+
+    for (let i = 0; i < stops.length - 1; i++) {
+      const s1 = stops[i];
+      const s2 = stops[i + 1];
+      const midLat = (s1.latitude + s2.latitude) / 2;
+      const midLng = (s1.longitude + s2.longitude) / 2;
+      const segDist = Math.max(0, (s2.distance_km || 0) - (s1.distance_km || 0));
+
+      const matchedDiv = routeDivisions.find(
+        d => d.from_station_code === s1.station_code && d.to_station_code === s2.station_code
+      );
+      const segmentId = matchedDiv?.treta_segment_number || `TS-${i + 1}`;
+
+      // Check if train is currently inside this block segment
+      const isActiveSegment =
+        (liveRailRadarData && liveRailRadarData.current_station_code === s1.station_code) ||
+        (simulationState && simulationState.current_station.code === s1.station_code);
+
+      // Draw subtle block boundary delimiter tick mark across the track
+      const dLat = s2.latitude - s1.latitude;
+      const dLng = s2.longitude - s1.longitude;
+      const len = Math.hypot(dLat, dLng) || 0.01;
+      const pLat = -dLng / len;
+      const pLng = dLat / len;
+      const tickSpan = 0.05; // ~5km delimiter tick
+
+      const tickP1: [number, number] = [midLat - pLat * tickSpan, midLng - pLng * tickSpan];
+      const tickP2: [number, number] = [midLat + pLat * tickSpan, midLng + pLng * tickSpan];
+
+      const blockTick = L.polyline([tickP1, tickP2], {
+        color: isActiveSegment ? '#0284c7' : '#64748b',
+        weight: isActiveSegment ? 3.5 : 2.5,
+        opacity: 0.85,
+        lineCap: 'square'
+      }).addTo(map);
+
+      blockPolylinesRef.current.push(blockTick);
+
+      const segHtml = `
+        <div class="relative flex items-center justify-center pointer-events-auto cursor-pointer group">
+          ${isActiveSegment ? '<div class="absolute -inset-1 rounded-lg bg-sky-500/40 animate-pulse"></div>' : ''}
+          <div class="whitespace-nowrap px-2 py-0.5 rounded font-mono text-[9px] font-bold border shadow-md transition-all group-hover:scale-110 ${
+            isActiveSegment
+              ? 'bg-sky-600 text-white border-sky-400 ring-2 ring-sky-300 shadow-sky-500/30'
+              : 'bg-white/95 text-slate-800 border-slate-300 hover:border-indigo-500 hover:text-indigo-900'
+          }">
+            <span class="${isActiveSegment ? 'text-sky-200' : 'text-indigo-600'} font-black mr-1">❖</span>
+            ${segmentId} • ${segDist}km
+          </div>
+        </div>
+      `;
+
+      const segIcon = L.divIcon({
+        className: 'block-division-chip',
+        html: segHtml,
+        iconSize: [85, 20],
+        iconAnchor: [42, 10]
+      });
+
+      const segMarker = L.marker([midLat, midLng], { icon: segIcon, zIndexOffset: 1200 }).addTo(map);
+
+      segMarker.bindPopup(`
+        <div style="font-family: system-ui, sans-serif; min-width: 220px; padding: 6px; color: #0f172a;">
+          <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #e2e8f0; padding-bottom: 4px; margin-bottom: 6px;">
+            <b style="color: #4f46e5; font-size: 13px;">Block Section: ${segmentId}</b>
+            <span style="font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 4px; ${isActiveSegment ? 'background: #0284c7; color: white;' : 'background: #f1f5f9; color: #475569;'}">
+              ${isActiveSegment ? 'OCCUPIED' : 'CLEAR'}
+            </span>
+          </div>
+          <div style="font-size: 11px; margin-bottom: 3px;">
+            <span style="color: #64748b;">From:</span> <b>${s1.station_name} (${s1.station_code})</b>
+          </div>
+          <div style="font-size: 11px; margin-bottom: 3px;">
+            <span style="color: #64748b;">To:</span> <b>${s2.station_name} (${s2.station_code})</b>
+          </div>
+          <div style="display: flex; justify-content: space-between; font-size: 10px; font-family: monospace; background: #f8fafc; padding: 4px 6px; border-radius: 4px; margin-top: 6px; border: 1px solid #e2e8f0;">
+            <span>Block Distance: <b>${segDist} km</b></span>
+            <span>State: <b>${s1.state || 'Territory'}</b></span>
+          </div>
+        </div>
+      `, { maxWidth: 260 });
+
+      blockMarkersRef.current.push(segMarker);
+    }
+  }, [stops, showStationDivisions, routeDivisions, liveRailRadarData, simulationState]);
 
   // 5. Render All Trains Fleet (Multi-Train Live Radar Overview)
   useEffect(() => {
