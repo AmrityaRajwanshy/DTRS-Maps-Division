@@ -221,35 +221,38 @@ export const RailwayMap: React.FC<RailwayMapProps> = ({
     });
     markersRef.current = [];
 
-    if (!showTrainRoute || !stops || stops.length === 0) return;
+    if (!stops || stops.length === 0) return;
 
-    const polylineCoords: L.LatLngExpression[] =
-      osmTrackPoints.length > 0
-        ? osmTrackPoints
-        : getCurvedRailwayPolyline(stops);
+    // Draw Train Route Polyline only if showTrainRoute is enabled
+    if (showTrainRoute) {
+      const polylineCoords: L.LatLngExpression[] =
+        osmTrackPoints.length > 0
+          ? osmTrackPoints
+          : getCurvedRailwayPolyline(stops);
 
-    // Sleek dark slate / deep navy railway track bed underneath
-    const trackBed = L.polyline(polylineCoords, {
-      color: '#1e293b',
-      weight: 7,
-      opacity: 0.95,
-      lineCap: 'round',
-      lineJoin: 'round'
-    }).addTo(map);
-    glowPolylineRef.current = trackBed;
-
-    // Neutral baseline centerline if state division layer is toggled off
-    if (!showStateDivisions) {
-      const line = L.polyline(polylineCoords, {
-        color: '#94a3b8',
-        weight: 3.5,
-        opacity: 0.85,
-        dashArray: '7, 6'
+      // Sleek dark slate / deep navy railway track bed underneath
+      const trackBed = L.polyline(polylineCoords, {
+        color: '#1e293b',
+        weight: 7,
+        opacity: 0.95,
+        lineCap: 'round',
+        lineJoin: 'round'
       }).addTo(map);
-      routePolylineRef.current = line;
+      glowPolylineRef.current = trackBed;
+
+      // Neutral baseline centerline if state division layer is toggled off
+      if (!showStateDivisions) {
+        const line = L.polyline(polylineCoords, {
+          color: '#94a3b8',
+          weight: 3.5,
+          opacity: 0.85,
+          dashArray: '7, 6'
+        }).addTo(map);
+        routePolylineRef.current = line;
+      }
     }
 
-    // Station Markers
+    // Station Markers: Remain on the map independently
     stops.forEach((stop, index) => {
       const stationCode = stop.station_code || (stop as any).code || '';
       const stationName = stop.station_name || (stop as any).station || '';
@@ -395,7 +398,7 @@ export const RailwayMap: React.FC<RailwayMapProps> = ({
     });
     divisionMarkersRef.current = [];
 
-    if (!showTrainRoute || !stops || stops.length < 2) return;
+    if (!stops || stops.length < 2) return;
 
     // A. STATE TERRITORIES & PROMINENT CROSS-BORDER LINES
     if (showStateDivisions) {

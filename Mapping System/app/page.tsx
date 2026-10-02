@@ -1297,7 +1297,7 @@ export default function DashboardPage() {
       </div>
 
       {/* Dedicated State Territory & Divisions Legend */}
-      {showTrainRoute && showStateDivisions && uniqueStatesOnRoute.length > 0 && (
+      {showStateDivisions && uniqueStatesOnRoute.length > 0 && (
         <StateLegendBar
           uniqueStatesOnRoute={uniqueStatesOnRoute}
           stateCrossings={stateCrossings}
