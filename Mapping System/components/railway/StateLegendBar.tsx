@@ -119,11 +119,6 @@ export const StateLegendBar: React.FC<StateLegendBarProps> = ({
             </span>
           </span>
         ))}
-        {!isLayerActive && (
-          <span className="text-[10px] font-mono text-purple-600 italic ml-1">
-            (Layer hidden · Click 'States' to show)
-          </span>
-        )}
       </div>
     </section>
   );
