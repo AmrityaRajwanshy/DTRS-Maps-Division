@@ -79,7 +79,7 @@ export const StateLegendBar: React.FC<StateLegendBarProps> = ({
 
   // Cuboidal Card Variant (Placed beside the Corridor & Train Selector Card)
   return (
-    <section className={`bg-white border border-slate-200/90 rounded-xl p-2.5 sm:p-3.5 shadow-sm ring-1 ring-slate-100 flex flex-col justify-between h-full space-y-2.5 ${className}`}>
+    <section className={`bg-white border border-slate-200/90 rounded-xl p-2.5 sm:p-3.5 shadow-sm ring-1 ring-slate-100 flex flex-col space-y-2.5 ${className}`}>
       {/* Row 1: Header Marked with Prominent LEGEND Badge */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2.5 border-b border-slate-200">
         <div className="flex items-center gap-2 shrink-0">
