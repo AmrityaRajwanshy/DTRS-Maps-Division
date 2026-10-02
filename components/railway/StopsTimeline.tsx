@@ -69,9 +69,9 @@ export const StopsTimeline: React.FC<StopsTimelineProps> = ({
   };
 
   return (
-    <div className="bg-white border border-slate-200/90 rounded-2xl p-3.5 sm:p-5 shadow-sm space-y-3.5">
+    <div className="bg-white border border-slate-200/90 rounded-2xl p-3.5 sm:p-5 shadow-sm flex flex-col h-full overflow-hidden space-y-3.5">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-2.5 border-b border-slate-200 gap-2">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-2.5 border-b border-slate-200 gap-2 shrink-0">
         <div className="flex items-center gap-2 flex-wrap">
           <MapPin className="w-4 h-4 text-[#172b54] shrink-0" />
           <h3 className="text-xs sm:text-sm font-bold text-[#172b54] tracking-wide uppercase">
@@ -216,7 +216,7 @@ export const StopsTimeline: React.FC<StopsTimelineProps> = ({
       )}
 
       {/* Station List with Explicit Delay & ETA */}
-      <div className="space-y-2 max-h-[440px] sm:max-h-[500px] md:max-h-[600px] lg:max-h-[680px] overflow-y-auto pr-1">
+      <div className="space-y-2 overflow-y-auto pr-1 flex-1 min-h-0 scrollbar-thin">
         {stops.map((stop, idx) => {
           const stationCode = stop.station_code || (stop as any).code || '';
           const stationName = stop.station_name || (stop as any).station || '';

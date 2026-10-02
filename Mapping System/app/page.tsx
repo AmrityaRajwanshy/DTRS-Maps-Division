@@ -1236,83 +1236,82 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* Main Workspace Split: Map + Stops Timeline */}
-      <div className="grid grid-cols-1 md:grid-cols-12 gap-3 sm:gap-4 lg:gap-6 items-start">
-        {/* Left Column: Controls & GIS Map */}
-        <div className={`md:col-span-7 lg:col-span-7 xl:col-span-8 space-y-3 sm:space-y-4 ${
-          mobileTab === 'schedule' ? 'hidden md:block' : 'block'
-        }`}>
-          {/* Controls: If in Live GPS mode, displays live GPS telemetry bar; otherwise interactive playback controls */}
-          {!isLiveGpsMode ? (
-            <SimulationControls
-              isPlaying={isPlaying}
-              onTogglePlay={() => setIsPlaying(!isPlaying)}
-              onReset={() => handleSeek(0)}
-              onNextStation={handleNextStation}
-              onPrevStation={handlePrevStation}
-              playbackSpeed={playbackSpeed}
-              onChangeSpeed={(spd) => setPlaybackSpeed(spd)}
-              progressPercent={progressPercent}
-              onSeek={handleSeek}
-            />
-          ) : (
-            <div className="bg-white border border-slate-200/90 rounded-2xl p-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs shadow-sm">
-              <div className="flex items-center gap-2">
-                <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping"></span>
-                <span className="font-bold text-slate-900 uppercase tracking-wider text-[11px]">
-                  Real-Time Physical Train Location Anchored via Live GPS
-                </span>
-              </div>
-              <div className="flex items-center gap-2 self-end sm:self-auto">
-                <span className="text-slate-500 font-mono text-[10px]">
-                  Updated: {liveRailRadarData?.last_updated_at ? new Date(liveRailRadarData.last_updated_at).toLocaleTimeString() : 'Live'}
-                </span>
-                <button
-                  onClick={() => setIsLiveGpsMode(false)}
-                  className="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-sky-800 font-semibold text-[11px] rounded-lg transition-colors cursor-pointer border border-slate-200"
-                >
-                  Switch to Simulation
-                </button>
-              </div>
-            </div>
-          )}
-
-          {/* Dedicated Map Action Bar on the Website Canvas (Outside the Map!) */}
-          <div className="bg-white border border-slate-200/90 rounded-2xl p-2.5 shadow-sm">
-            <MapControlsBar
-              isFullCanvas={false}
-              onToggleFullCanvas={() => setIsFullCanvas(true)}
-              showTrainRoute={showTrainRoute}
-              onToggleTrainRoute={() => setShowTrainRoute(!showTrainRoute)}
-              onFitRoute={handleFitRoute}
-              isFollowingTrain={isFollowingTrain}
-              onToggleFollowTrain={() => {
-                if (!showTrainRoute && !isFollowingTrain) setShowTrainRoute(true);
-                setIsFollowingTrain(!isFollowingTrain);
-              }}
-              isLiveGpsMode={isLiveGpsMode}
-              onToggleLiveGpsMode={() => setIsLiveGpsMode(!isLiveGpsMode)}
-              showStateDivisions={showStateDivisions}
-              onToggleStateDivisions={() => setShowStateDivisions(!showStateDivisions)}
-              showStationDivisions={showStationDivisions}
-              onToggleStationDivisions={() => setShowStationDivisions(!showStationDivisions)}
-              showAllTrainsFleet={showAllTrainsFleet}
-              onToggleAllTrainsFleet={() => setShowAllTrainsFleet(!showAllTrainsFleet)}
-              allTrainsCount={allTrainsLive.length}
-            />
+      {/* Controls: If in Live GPS mode, displays live GPS telemetry bar; otherwise interactive playback controls */}
+      {!isLiveGpsMode ? (
+        <SimulationControls
+          isPlaying={isPlaying}
+          onTogglePlay={() => setIsPlaying(!isPlaying)}
+          onReset={() => handleSeek(0)}
+          onNextStation={handleNextStation}
+          onPrevStation={handlePrevStation}
+          playbackSpeed={playbackSpeed}
+          onChangeSpeed={(spd) => setPlaybackSpeed(spd)}
+          progressPercent={progressPercent}
+          onSeek={handleSeek}
+        />
+      ) : (
+        <div className="bg-white border border-slate-200/90 rounded-2xl p-2.5 sm:p-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs shadow-sm">
+          <div className="flex items-center gap-2">
+            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping"></span>
+            <span className="font-bold text-slate-900 uppercase tracking-wider text-[11px]">
+              Real-Time Physical Train Location Anchored via Live GPS
+            </span>
           </div>
+          <div className="flex items-center gap-2 self-end sm:self-auto">
+            <span className="text-slate-500 font-mono text-[10px]">
+              Updated: {liveRailRadarData?.last_updated_at ? new Date(liveRailRadarData.last_updated_at).toLocaleTimeString() : 'Live'}
+            </span>
+            <button
+              onClick={() => setIsLiveGpsMode(false)}
+              className="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-sky-800 font-semibold text-[11px] rounded-lg transition-colors cursor-pointer border border-slate-200"
+            >
+              Switch to Simulation
+            </button>
+          </div>
+        </div>
+      )}
 
-          {/* Dedicated State Territory & Divisions Legend (Placed Separately!) */}
-          {showTrainRoute && showStateDivisions && uniqueStatesOnRoute.length > 0 && (
-            <StateLegendBar
-              uniqueStatesOnRoute={uniqueStatesOnRoute}
-              stateCrossings={stateCrossings}
-              isVisible={true}
-            />
-          )}
+      {/* Dedicated Map Action Bar on the Website Canvas */}
+      <div className="bg-white border border-slate-200/90 rounded-2xl p-2 sm:p-2.5 shadow-sm">
+        <MapControlsBar
+          isFullCanvas={false}
+          onToggleFullCanvas={() => setIsFullCanvas(true)}
+          showTrainRoute={showTrainRoute}
+          onToggleTrainRoute={() => setShowTrainRoute(!showTrainRoute)}
+          onFitRoute={handleFitRoute}
+          isFollowingTrain={isFollowingTrain}
+          onToggleFollowTrain={() => {
+            if (!showTrainRoute && !isFollowingTrain) setShowTrainRoute(true);
+            setIsFollowingTrain(!isFollowingTrain);
+          }}
+          isLiveGpsMode={isLiveGpsMode}
+          onToggleLiveGpsMode={() => setIsLiveGpsMode(!isLiveGpsMode)}
+          showStateDivisions={showStateDivisions}
+          onToggleStateDivisions={() => setShowStateDivisions(!showStateDivisions)}
+          showStationDivisions={showStationDivisions}
+          onToggleStationDivisions={() => setShowStationDivisions(!showStationDivisions)}
+          showAllTrainsFleet={showAllTrainsFleet}
+          onToggleAllTrainsFleet={() => setShowAllTrainsFleet(!showAllTrainsFleet)}
+          allTrainsCount={allTrainsLive.length}
+        />
+      </div>
 
-          {/* Interactive Leaflet Railway Map Container with Dynamic Height */}
-          <div className="min-h-[460px] h-[calc(100vh-280px)] max-h-[850px] w-full rounded-2xl overflow-hidden border border-slate-200 shadow-sm bg-white">
+      {/* Dedicated State Territory & Divisions Legend */}
+      {showTrainRoute && showStateDivisions && uniqueStatesOnRoute.length > 0 && (
+        <StateLegendBar
+          uniqueStatesOnRoute={uniqueStatesOnRoute}
+          stateCrossings={stateCrossings}
+          isVisible={true}
+        />
+      )}
+
+      {/* Main Workspace Split: Map + Stops Timeline (Both side-by-side and perfectly leveled!) */}
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-3 sm:gap-4 lg:gap-6 items-stretch">
+        {/* Left Column: GIS Map */}
+        <div className={`md:col-span-7 lg:col-span-7 xl:col-span-8 flex flex-col ${
+          mobileTab === 'schedule' ? 'hidden md:flex' : 'flex'
+        }`}>
+          <div className="h-[620px] lg:h-[700px] min-h-[500px] w-full rounded-2xl overflow-hidden border border-slate-200 shadow-sm bg-white">
             <MapWrapper
               stops={stops}
               trainNumber={selectedTrainNumber}
@@ -1345,19 +1344,21 @@ export default function DashboardPage() {
         </div>
 
         {/* Right Column: Stops Timeline */}
-        <div className={`md:col-span-5 lg:col-span-5 xl:col-span-4 space-y-4 ${
-          mobileTab === 'map' ? 'hidden md:block' : 'block'
+        <div className={`md:col-span-5 lg:col-span-5 xl:col-span-4 flex flex-col ${
+          mobileTab === 'map' ? 'hidden md:flex' : 'flex'
         }`}>
-          <StopsTimeline
-            stops={stops}
-            currentStopSequence={currentStopSeq}
-            selectedStationCode={selectedStationCode}
-            onSelectStation={(code) => handleStationClick(code)}
-            onInjectDelay={handleInjectDelay}
-            onResetDelays={handleResetDelays}
-            attribution={attribution}
-            isLiveGpsMode={isLiveGpsMode}
-          />
+          <div className="h-[620px] lg:h-[700px] min-h-[500px] w-full">
+            <StopsTimeline
+              stops={stops}
+              currentStopSequence={currentStopSeq}
+              selectedStationCode={selectedStationCode}
+              onSelectStation={(code) => handleStationClick(code)}
+              onInjectDelay={handleInjectDelay}
+              onResetDelays={handleResetDelays}
+              attribution={attribution}
+              isLiveGpsMode={isLiveGpsMode}
+            />
+          </div>
         </div>
       </div>
     </main>
