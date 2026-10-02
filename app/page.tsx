@@ -946,7 +946,7 @@ export default function DashboardPage() {
       {/* Side-by-Side Cockpit: Dynamic Corridor & Train Selector + Territory Legend */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-3 sm:gap-4 items-start">
         {/* Left Column: Corridor & Trains Selector (Cuboidal Card) */}
-        <section className="lg:col-span-7 xl:col-span-7 bg-white border border-slate-200/90 rounded-xl p-2.5 sm:p-3.5 shadow-sm ring-1 ring-slate-100 flex flex-col space-y-2.5">
+        <section className="lg:col-span-6 xl:col-span-6 bg-white border border-slate-200/90 rounded-xl p-2.5 sm:p-3.5 shadow-sm ring-1 ring-slate-100 flex flex-col space-y-2.5">
           {/* Row 1: Corridor Dropdown Selection */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2.5 border-b border-slate-200">
             <div className="flex items-center justify-between sm:justify-start gap-2 shrink-0">
@@ -1090,7 +1090,7 @@ export default function DashboardPage() {
         </section>
 
         {/* Right Column: State Territory Legend (Cuboidal & Marked as LEGEND) */}
-        <div className="lg:col-span-5 xl:col-span-5 flex flex-col">
+        <div className="lg:col-span-6 xl:col-span-6 flex flex-col">
           <StateLegendBar
             uniqueStatesOnRoute={uniqueStatesOnRoute}
             stateCrossings={stateCrossings}

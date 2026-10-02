@@ -56,9 +56,6 @@ export const StateLegendBar: React.FC<StateLegendBarProps> = ({
                   style={{ backgroundColor: st.color }}
                 />
                 <span className="text-slate-900">{st.state}</span>
-                <span className="text-[9px] opacity-80 font-semibold" style={{ color: st.color }}>
-                  ({st.key.replace('SB-', '')})
-                </span>
               </span>
             ))}
           </div>
@@ -93,7 +90,7 @@ export const StateLegendBar: React.FC<StateLegendBarProps> = ({
         </div>
 
         {stateCrossings.length > 0 && (
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-mono font-bold bg-purple-50 text-purple-900 border border-purple-200 shadow-2xs whitespace-nowrap self-start sm:self-auto">
+          <span className="inline-flex items-center gap-1.5 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-lg text-[10px] font-mono font-bold bg-purple-50 text-purple-900 border border-purple-200 shadow-2xs whitespace-nowrap self-start sm:self-auto">
             <span className="w-1.5 h-1.5 rounded-full bg-purple-600 animate-pulse shrink-0" />
             <ArrowRightLeft className="w-3 h-3 text-purple-600" />
             <span>{stateCrossings.length} Inter-State Transitions</span>
@@ -101,12 +98,12 @@ export const StateLegendBar: React.FC<StateLegendBarProps> = ({
         )}
       </div>
 
-      {/* Row 2: Cuboidal State Territory Badges */}
-      <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap pt-0.5">
+      {/* Row 2: Cuboidal State Territory Badges (Single line, no short codes, no trailing space) */}
+      <div className="flex items-center gap-1.5 sm:gap-2 flex-nowrap overflow-x-auto no-scrollbar pt-0.5">
         {uniqueStatesOnRoute.map((st) => (
           <span
             key={st.key}
-            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] sm:text-[11px] font-mono font-bold bg-slate-50 border shadow-2xs whitespace-nowrap transition-transform hover:scale-105"
+            className="inline-flex items-center gap-1.5 px-2 py-1 sm:px-2.5 sm:py-1 rounded-lg text-[10px] sm:text-[11px] font-mono font-bold bg-slate-50 border shadow-2xs whitespace-nowrap shrink-0 transition-transform hover:scale-105"
             style={{ color: st.color, borderColor: `${st.color}55` }}
           >
             <span
@@ -114,9 +111,6 @@ export const StateLegendBar: React.FC<StateLegendBarProps> = ({
               style={{ backgroundColor: st.color }}
             />
             <span className="text-slate-900">{st.state}</span>
-            <span className="text-[9px] opacity-80 font-semibold" style={{ color: st.color }}>
-              ({st.key.replace('SB-', '')})
-            </span>
           </span>
         ))}
       </div>
