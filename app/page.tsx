@@ -760,6 +760,7 @@ export default function DashboardPage() {
               uniqueStatesOnRoute={uniqueStatesOnRoute}
               stateCrossings={stateCrossings}
               isVisible={true}
+              variant="compact"
             />
           </div>
         )}
@@ -942,151 +943,163 @@ export default function DashboardPage() {
         </header>
       )}
 
-      {/* Dynamic Corridor & Trains Section */}
-      <section className="bg-white border border-slate-200/90 rounded-2xl p-2.5 sm:p-3.5 shadow-sm space-y-2.5">
-        {/* Row 1: Corridor Dropdown Selection */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2.5 border-b border-slate-200">
-          <div className="flex items-center justify-between sm:justify-start gap-2 shrink-0">
-            <div className="flex items-center gap-2">
-              <Layers className="w-4 h-4 text-[#172b54]" />
-              <span className="text-xs uppercase font-bold text-slate-800 tracking-wider">
-                Railway Corridor:
+      {/* Side-by-Side Cockpit: Dynamic Corridor & Train Selector + Territory Legend */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-3 sm:gap-4 items-stretch">
+        {/* Left Column: Corridor & Trains Selector (Cuboidal Card) */}
+        <section className="lg:col-span-7 xl:col-span-7 bg-white border border-slate-200/90 rounded-xl p-2.5 sm:p-3.5 shadow-sm ring-1 ring-slate-100 flex flex-col justify-between h-full space-y-2.5">
+          {/* Row 1: Corridor Dropdown Selection */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2.5 border-b border-slate-200">
+            <div className="flex items-center justify-between sm:justify-start gap-2 shrink-0">
+              <div className="flex items-center gap-2">
+                <Layers className="w-4 h-4 text-[#172b54]" />
+                <span className="text-xs uppercase font-bold text-slate-800 tracking-wider">
+                  Railway Corridor:
+                </span>
+              </div>
+              <span className="text-[11px] text-slate-500 font-mono">({corridors.length} Trunks)</span>
+            </div>
+
+            <div ref={corridorDropdownRef} className="relative self-start sm:self-auto">
+              <button
+                type="button"
+                onClick={() => {
+                  setIsCorridorDropdownOpen(prev => !prev);
+                  setIsTrainDropdownOpen(false);
+                }}
+                className="bg-[#172b54] text-white shadow-md shadow-[#172b54]/20 ring-1 ring-[#172b54] font-bold px-3 py-1.5 rounded-lg text-xs transition-all flex items-center justify-between gap-2 cursor-pointer active:scale-95"
+              >
+                <span>{corridors.find(c => c.id === selectedCorridorId)?.name || 'Select Corridor'}</span>
+                <ChevronDown className={`w-3.5 h-3.5 text-white/80 transition-transform duration-200 ${isCorridorDropdownOpen ? 'rotate-180' : ''}`} />
+              </button>
+
+              {isCorridorDropdownOpen && (
+                <div className="absolute left-0 sm:left-auto sm:right-0 top-full mt-1.5 w-64 sm:w-72 bg-white rounded-xl shadow-xl border border-slate-200 p-1.5 z-50 animate-in fade-in zoom-in-95 duration-150">
+                  <div className="text-[10px] uppercase font-bold text-slate-400 px-2.5 py-1 tracking-wider border-b border-slate-100 mb-1">
+                    Select Trunk Corridor ({corridors.length})
+                  </div>
+                  <div className="max-h-60 overflow-y-auto space-y-0.5 scrollbar-thin">
+                    {corridors.map(c => {
+                      const isSelected = c.id === selectedCorridorId;
+                      return (
+                        <button
+                          key={c.id}
+                          type="button"
+                          onClick={() => {
+                            handleSelectCorridor(c.id);
+                            setIsCorridorDropdownOpen(false);
+                          }}
+                          className={`w-full text-left px-2.5 py-2 rounded-lg text-xs font-semibold flex items-center justify-between transition-colors cursor-pointer ${
+                            isSelected
+                              ? 'bg-[#172b54] text-white font-bold'
+                              : 'text-slate-700 hover:bg-slate-100'
+                          }`}
+                        >
+                          <div>
+                            <div>{c.name}</div>
+                            <div className={`text-[10px] font-normal ${isSelected ? 'text-slate-200' : 'text-slate-400'}`}>
+                              {c.origin_city} → {c.destination_city}
+                            </div>
+                          </div>
+                          {isSelected && <Check className="w-3.5 h-3.5 text-white shrink-0 ml-2" />}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Row 2: Dynamic Trains Dropdown Section */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pt-0.5">
+            <div className="flex items-center justify-between sm:justify-start gap-2 shrink-0">
+              <div className="flex items-center gap-2">
+                <TrainIcon className="w-4 h-4 text-[#172b54]" />
+                <span className="text-xs uppercase font-bold text-slate-800 tracking-wider">
+                  Trains:
+                </span>
+              </div>
+              <span className="text-[11px] text-slate-500 font-mono truncate max-w-[200px] sm:max-w-none">
+                ({corridorTrains.length} in Corridor)
               </span>
             </div>
-            <span className="text-[11px] text-slate-500 font-mono">({corridors.length} Trunks)</span>
-          </div>
 
-          <div ref={corridorDropdownRef} className="relative self-start sm:self-auto">
-            <button
-              type="button"
-              onClick={() => {
-                setIsCorridorDropdownOpen(prev => !prev);
-                setIsTrainDropdownOpen(false);
-              }}
-              className="bg-[#172b54] text-white shadow-md shadow-[#172b54]/20 ring-1 ring-[#172b54] font-bold px-3.5 py-1.5 rounded-xl text-xs transition-all flex items-center justify-between gap-2.5 cursor-pointer active:scale-95"
-            >
-              <span>{corridors.find(c => c.id === selectedCorridorId)?.name || 'Select Corridor'}</span>
-              <ChevronDown className={`w-3.5 h-3.5 text-white/80 transition-transform duration-200 ${isCorridorDropdownOpen ? 'rotate-180' : ''}`} />
-            </button>
-
-            {isCorridorDropdownOpen && (
-              <div className="absolute left-0 sm:left-auto sm:right-0 top-full mt-1.5 w-64 sm:w-72 bg-white rounded-xl shadow-xl border border-slate-200 p-1.5 z-50 animate-in fade-in zoom-in-95 duration-150">
-                <div className="text-[10px] uppercase font-bold text-slate-400 px-2.5 py-1 tracking-wider border-b border-slate-100 mb-1">
-                  Select Trunk Corridor ({corridors.length})
+            <div ref={trainDropdownRef} className="relative self-start sm:self-auto">
+              <button
+                type="button"
+                onClick={() => {
+                  setIsTrainDropdownOpen(prev => !prev);
+                  setIsCorridorDropdownOpen(false);
+                }}
+                className="bg-[#172b54]/5 border border-[#172b54] shadow-sm ring-1 ring-[#172b54]/40 text-slate-900 px-3 py-1.5 rounded-lg text-xs transition-all flex items-center justify-between gap-2 sm:gap-2.5 cursor-pointer active:scale-95"
+              >
+                <div className="flex items-center gap-1.5 min-w-0">
+                  <span className="w-2 h-2 rounded-full bg-orange-500 shadow-xs animate-pulse shrink-0" />
+                  <span className="font-bold font-mono text-orange-600 shrink-0">{activeTrain?.train_number || selectedTrainNumber}</span>
+                  <span className="font-semibold text-slate-800 truncate max-w-[130px] sm:max-w-[170px]">{activeTrain?.train_name}</span>
                 </div>
-                <div className="max-h-60 overflow-y-auto space-y-0.5 scrollbar-thin">
-                  {corridors.map(c => {
-                    const isSelected = c.id === selectedCorridorId;
-                    return (
-                      <button
-                        key={c.id}
-                        type="button"
-                        onClick={() => {
-                          handleSelectCorridor(c.id);
-                          setIsCorridorDropdownOpen(false);
-                        }}
-                        className={`w-full text-left px-2.5 py-2 rounded-lg text-xs font-semibold flex items-center justify-between transition-colors cursor-pointer ${
-                          isSelected
-                            ? 'bg-[#172b54] text-white font-bold'
-                            : 'text-slate-700 hover:bg-slate-100'
-                        }`}
-                      >
-                        <div>
-                          <div>{c.name}</div>
-                          <div className={`text-[10px] font-normal ${isSelected ? 'text-slate-200' : 'text-slate-400'}`}>
-                            {c.origin_city} → {c.destination_city}
+                <div className="text-[10px] sm:text-[11px] text-slate-500 font-mono hidden xl:flex items-center gap-1.5 border-l border-slate-200 pl-2 shrink-0">
+                  <span className="text-emerald-700 font-semibold">Dep {activeTrain?.scheduled_departure}</span>
+                </div>
+                <ChevronDown className={`w-3.5 h-3.5 text-slate-500 transition-transform duration-200 shrink-0 ml-1 ${isTrainDropdownOpen ? 'rotate-180' : ''}`} />
+              </button>
+
+              {isTrainDropdownOpen && (
+                <div className="absolute left-0 sm:left-auto sm:right-0 top-full mt-1.5 w-72 sm:w-96 bg-white rounded-xl shadow-xl border border-slate-200 p-1.5 z-50 animate-in fade-in zoom-in-95 duration-150">
+                  <div className="text-[10px] uppercase font-bold text-slate-400 px-2.5 py-1 tracking-wider border-b border-slate-100 mb-1">
+                    Select Train in Corridor ({corridorTrains.length})
+                  </div>
+                  <div className="max-h-64 overflow-y-auto space-y-1 scrollbar-thin">
+                    {corridorTrains.map(t => {
+                      const isSelected = t.train_number === selectedTrainNumber;
+                      return (
+                        <button
+                          key={t.train_number}
+                          type="button"
+                          onClick={() => {
+                            handleSelectTrain(t.train_number);
+                            setIsTrainDropdownOpen(false);
+                          }}
+                          className={`w-full text-left px-2.5 py-2 rounded-lg text-xs transition-colors flex items-center justify-between gap-2 cursor-pointer ${
+                            isSelected
+                              ? 'bg-[#172b54]/10 border border-[#172b54]/30 text-slate-900 font-semibold'
+                              : 'text-slate-700 hover:bg-slate-50 border border-transparent'
+                          }`}
+                        >
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-center gap-1.5">
+                              <span className={`w-2 h-2 rounded-full ${isSelected ? 'bg-orange-500 animate-pulse' : 'bg-slate-300'}`} />
+                              <span className="font-bold font-mono text-orange-600">{t.train_number}</span>
+                              <span className="font-semibold text-slate-900 truncate">{t.train_name}</span>
+                            </div>
+                            <div className="text-[10px] text-slate-500 font-mono mt-0.5 pl-3.5 flex items-center gap-1.5">
+                              <span>{t.source_name || t.source_code} → {t.destination_name || t.destination_code}</span>
+                              <span className="text-slate-300">•</span>
+                              <span className="text-emerald-700">Dep {t.scheduled_departure}</span>
+                            </div>
                           </div>
-                        </div>
-                        {isSelected && <Check className="w-3.5 h-3.5 text-white shrink-0 ml-2" />}
-                      </button>
-                    );
-                  })}
+                          {isSelected && <Check className="w-4 h-4 text-[#172b54] shrink-0" />}
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Row 2: Dynamic Trains Dropdown Section */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-          <div className="flex items-center justify-between sm:justify-start gap-2 shrink-0">
-            <div className="flex items-center gap-2">
-              <TrainIcon className="w-4 h-4 text-[#172b54]" />
-              <span className="text-xs uppercase font-bold text-slate-800 tracking-wider">
-                Trains:
-              </span>
+              )}
             </div>
-            <span className="text-[11px] text-slate-500 font-mono truncate max-w-[200px] sm:max-w-none">
-              ({corridorTrains.length} in Corridor)
-            </span>
           </div>
+        </section>
 
-          <div ref={trainDropdownRef} className="relative self-start sm:self-auto">
-            <button
-              type="button"
-              onClick={() => {
-                setIsTrainDropdownOpen(prev => !prev);
-                setIsCorridorDropdownOpen(false);
-              }}
-              className="bg-[#172b54]/5 border border-[#172b54] shadow-sm ring-1 ring-[#172b54]/40 text-slate-900 px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl text-xs transition-all flex items-center justify-between gap-2 sm:gap-3 cursor-pointer active:scale-95"
-            >
-              <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
-                <span className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-orange-500 shadow-xs animate-pulse shrink-0" />
-                <span className="font-bold font-mono text-orange-600 shrink-0">{activeTrain?.train_number || selectedTrainNumber}</span>
-                <span className="font-semibold text-slate-800 truncate max-w-[140px] xs:max-w-[200px] sm:max-w-none">{activeTrain?.train_name}</span>
-              </div>
-              <div className="text-[10px] sm:text-[11px] text-slate-500 font-mono hidden md:flex items-center gap-1.5 border-l border-slate-200 pl-2.5 shrink-0">
-                <span>{activeTrain?.source_name || activeTrain?.source_code} to {activeTrain?.destination_name || activeTrain?.destination_code}</span>
-                <span className="text-slate-300">•</span>
-                <span className="text-emerald-700 font-semibold">Dep {activeTrain?.scheduled_departure}</span>
-              </div>
-              <ChevronDown className={`w-3.5 h-3.5 text-slate-500 transition-transform duration-200 shrink-0 ml-1 ${isTrainDropdownOpen ? 'rotate-180' : ''}`} />
-            </button>
-
-            {isTrainDropdownOpen && (
-              <div className="absolute left-0 sm:left-auto sm:right-0 top-full mt-1.5 w-72 sm:w-96 bg-white rounded-xl shadow-xl border border-slate-200 p-1.5 z-50 animate-in fade-in zoom-in-95 duration-150">
-                <div className="text-[10px] uppercase font-bold text-slate-400 px-2.5 py-1 tracking-wider border-b border-slate-100 mb-1">
-                  Select Train in Corridor ({corridorTrains.length})
-                </div>
-                <div className="max-h-64 overflow-y-auto space-y-1 scrollbar-thin">
-                  {corridorTrains.map(t => {
-                    const isSelected = t.train_number === selectedTrainNumber;
-                    return (
-                      <button
-                        key={t.train_number}
-                        type="button"
-                        onClick={() => {
-                          handleSelectTrain(t.train_number);
-                          setIsTrainDropdownOpen(false);
-                        }}
-                        className={`w-full text-left px-2.5 py-2 rounded-lg text-xs transition-colors flex items-center justify-between gap-2 cursor-pointer ${
-                          isSelected
-                            ? 'bg-[#172b54]/10 border border-[#172b54]/30 text-slate-900 font-semibold'
-                            : 'text-slate-700 hover:bg-slate-50 border border-transparent'
-                        }`}
-                      >
-                        <div className="min-w-0 flex-1">
-                          <div className="flex items-center gap-1.5">
-                            <span className={`w-2 h-2 rounded-full ${isSelected ? 'bg-orange-500 animate-pulse' : 'bg-slate-300'}`} />
-                            <span className="font-bold font-mono text-orange-600">{t.train_number}</span>
-                            <span className="font-semibold text-slate-900 truncate">{t.train_name}</span>
-                          </div>
-                          <div className="text-[10px] text-slate-500 font-mono mt-0.5 pl-3.5 flex items-center gap-1.5">
-                            <span>{t.source_name || t.source_code} → {t.destination_name || t.destination_code}</span>
-                            <span className="text-slate-300">•</span>
-                            <span className="text-emerald-700">Dep {t.scheduled_departure}</span>
-                          </div>
-                        </div>
-                        {isSelected && <Check className="w-4 h-4 text-[#172b54] shrink-0" />}
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-          </div>
+        {/* Right Column: State Territory Legend (Cuboidal & Marked as LEGEND) */}
+        <div className="lg:col-span-5 xl:col-span-5 flex flex-col h-full">
+          <StateLegendBar
+            uniqueStatesOnRoute={uniqueStatesOnRoute}
+            stateCrossings={stateCrossings}
+            isVisible={true}
+            isLayerActive={showStateDivisions}
+            variant="card"
+          />
         </div>
-      </section>
+      </div>
 
       {/* Real-Time Live RailRadar Telemetry & Track Divisions Ribbon */}
       <section className="bg-white border border-slate-200/90 rounded-2xl p-3 sm:p-4 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-3 text-xs">
@@ -1295,15 +1308,6 @@ export default function DashboardPage() {
           allTrainsCount={allTrainsLive.length}
         />
       </div>
-
-      {/* Dedicated State Territory & Divisions Legend */}
-      {showStateDivisions && uniqueStatesOnRoute.length > 0 && (
-        <StateLegendBar
-          uniqueStatesOnRoute={uniqueStatesOnRoute}
-          stateCrossings={stateCrossings}
-          isVisible={true}
-        />
-      )}
 
       {/* Main Workspace Split: Map + Stops Timeline (Both side-by-side and perfectly leveled!) */}
       <div className="grid grid-cols-1 md:grid-cols-12 gap-3 sm:gap-4 lg:gap-6 items-stretch">
