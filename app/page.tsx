@@ -880,9 +880,9 @@ export default function DashboardPage() {
                 <span className="bg-orange-50 text-orange-600 font-mono text-[9px] sm:text-[10px] font-extrabold px-2 py-0.5 rounded-full border border-orange-200 tracking-wider">
                   SIH 26028
                 </span>
-                <span className="bg-emerald-50 text-emerald-800 font-mono text-[9px] sm:text-[10px] font-bold px-2 py-0.5 rounded-full border border-emerald-200 flex items-center gap-1">
+                {/* <span className="bg-emerald-50 text-emerald-800 font-mono text-[9px] sm:text-[10px] font-bold px-2 py-0.5 rounded-full border border-emerald-200 flex items-center gap-1">
                   <Radio className="w-2.5 h-2.5 text-emerald-600 animate-pulse" /> RAILRADAR LIVE
-                </span>
+                </span> */}
               </div>
               <p className="text-[11px] sm:text-xs text-slate-500">
                 True track GIS curves, real-time GPS telemetry, and station/state territorial divisions
