@@ -216,7 +216,7 @@ export const StopsTimeline: React.FC<StopsTimelineProps> = ({
       )}
 
       {/* Station List with Explicit Delay & ETA */}
-      <div className="space-y-2 overflow-y-auto pr-1 flex-1 min-h-0 scrollbar-thin">
+      <div className="space-y-2 overflow-y-auto overflow-x-hidden p-1.5 flex-1 min-h-0 scrollbar-thin">
         {stops.map((stop, idx) => {
           const stationCode = stop.station_code || (stop as any).code || '';
           const stationName = stop.station_name || (stop as any).station || '';
@@ -236,7 +236,7 @@ export const StopsTimeline: React.FC<StopsTimelineProps> = ({
             <div
               key={`${stationCode}-${sequence}-${idx}`}
               onClick={() => onSelectStation(stationCode)}
-              className={`p-3 rounded-xl border transition-all cursor-pointer active:scale-[0.99] ${
+              className={`p-3 pl-3.5 sm:pl-4 rounded-xl border transition-all cursor-pointer active:scale-[0.99] ${
                 isSelected
                   ? 'bg-[#172b54]/5 border-[#172b54] shadow-sm ring-2 ring-[#172b54]/40'
                   : 'bg-white hover:bg-slate-50/90 border-slate-200 shadow-xs'
@@ -244,7 +244,7 @@ export const StopsTimeline: React.FC<StopsTimelineProps> = ({
             >
               <div className="flex items-center justify-between gap-2.5 sm:gap-3">
                 {/* Station Node & Info */}
-                <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                <div className="flex items-center gap-2.5 sm:gap-3 min-w-0 flex-1">
                   <div
                     className={`w-7 h-7 rounded-full flex items-center justify-center font-bold text-xs shrink-0 shadow-xs ${
                       isSource
