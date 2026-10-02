@@ -117,7 +117,7 @@ export const MapControlsBar: React.FC<MapControlsBarProps> = ({
         {onToggleLiveGpsMode && (
           <button
             onClick={onToggleLiveGpsMode}
-            title="Toggle between Live RailRadar GPS positioning and Kinematic Simulation"
+            title="Toggle between Live GPS positioning and Kinematic Simulation"
             className={`px-3 py-1.5 rounded-xl transition-all flex items-center gap-1.5 text-xs font-bold border cursor-pointer active:scale-95 whitespace-nowrap shadow-xs ${
               isLiveGpsMode
                 ? 'bg-emerald-600 hover:bg-emerald-500 text-white border-emerald-500 ring-1 ring-emerald-300'

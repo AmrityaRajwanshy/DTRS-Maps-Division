@@ -817,7 +817,7 @@ export const RailwayMap: React.FC<RailwayMapProps> = ({
       nextStn = liveRailRadarData.next_station_name || liveRailRadarData.next_station_code;
       const delay = liveRailRadarData.delay_minutes;
       readoutLabel = `LIVE GPS • ${speed_kmh} km/h • ${delay >= 0 ? '+' : ''}${delay}m Late`;
-      message = `RailRadar Real-time Feed • Near ${currentStn} (${liveRailRadarData.active_state})`;
+      message = `Real-time GPS Feed • Near ${currentStn} (${liveRailRadarData.active_state})`;
     } else if (simulationState) {
       latitude = simulationState.latitude;
       longitude = simulationState.longitude;
@@ -926,7 +926,7 @@ export const RailwayMap: React.FC<RailwayMapProps> = ({
 
     const tooltipContent = `
       <b>${trainNumber} ${trainName}</b><br/>
-      ${isLiveGpsMode ? '<span style="color:#059669; font-weight:bold;">LIVE GPS (RailRadar)</span><br/>' : ''}
+      ${isLiveGpsMode ? '<span style="color:#059669; font-weight:bold;">LIVE GPS</span><br/>' : ''}
       Speed: <b>${speed_kmh} km/h</b> (${status})<br/>
       Current: <b>${currentStn}</b> to Next: <b>${nextStn}</b><br/>
       <span style="font-size: 10px; color: #64748b;">${message}</span>
