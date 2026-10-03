@@ -1,5 +1,5 @@
 /**
- * Universal Track Geometry Engine for Treta Mapping System.
+ * Universal Track Geometry Engine for DTRS Mapping System.
  * Pure TypeScript — no Node.js native dependencies, safely usable on both client and server.
  * Ensures the train position and bearing ALWAYS match the rendered railway polyline with 100% precision.
  */

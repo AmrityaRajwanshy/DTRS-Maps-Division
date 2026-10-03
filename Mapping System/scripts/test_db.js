@@ -4,7 +4,7 @@ const path = require('path');
 const dbPath = path.join(__dirname, '..', 'data', 'treta_railway.db');
 const db = new Database(dbPath);
 
-console.log('--- VALIDATING TRETA DATABASE ---');
+console.log('--- VALIDATING DTRS DATABASE ---');
 
 const corridorsCount = db.prepare('SELECT COUNT(*) as count FROM corridors').get().count;
 const stationsCount = db.prepare('SELECT COUNT(*) as count FROM stations').get().count;

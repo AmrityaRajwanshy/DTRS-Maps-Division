@@ -13,6 +13,11 @@ function resolveDatabasePath(): string {
   }
 
   const candidatePaths = [
+    path.join(process.cwd(), 'data', 'dtrs_railway.db'),
+    path.resolve(__dirname, '..', 'data', 'dtrs_railway.db'),
+    path.resolve(__dirname, '..', '..', 'data', 'dtrs_railway.db'),
+    path.resolve(__dirname, 'data', 'dtrs_railway.db'),
+    path.resolve('data', 'dtrs_railway.db'),
     path.join(process.cwd(), 'data', 'treta_railway.db'),
     path.resolve(__dirname, '..', 'data', 'treta_railway.db'),
     path.resolve(__dirname, '..', '..', 'data', 'treta_railway.db'),

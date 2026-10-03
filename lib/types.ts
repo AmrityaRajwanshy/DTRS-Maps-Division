@@ -1,5 +1,5 @@
 // -----------------------------------------------------------------------------
-// TRETA MAPPING SYSTEM — CLIENT-SAFE TYPES & SHARED CONSTANTS
+// DTRS MAPPING SYSTEM — CLIENT-SAFE TYPES & SHARED CONSTANTS
 // (Zero Node.js runtime dependencies — safe for Client Components & SSR)
 // -----------------------------------------------------------------------------
 

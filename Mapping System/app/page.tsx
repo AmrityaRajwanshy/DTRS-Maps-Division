@@ -656,7 +656,7 @@ export default function DashboardPage() {
             <div className="flex items-center gap-1.5 shrink-0 pl-1">
               <TrainIcon className="w-5 h-5 text-[#172b54]" />
               <span className="text-xs font-black text-[#172b54] tracking-wide uppercase hidden sm:inline">
-                TRETA GIS
+                DTRS GIS
               </span>
               <span className="bg-orange-50 text-orange-600 font-mono text-[9px] font-extrabold px-1.5 py-0.5 rounded-full border border-orange-200 shadow-2xs">
                 FULL CANVAS
@@ -858,7 +858,7 @@ export default function DashboardPage() {
           <div className="flex items-center gap-2">
             <TrainIcon className="w-4 h-4 text-[#172b54]" />
             <span className="text-xs font-bold text-[#172b54] tracking-wide uppercase">
-              TRETA GIS TRACK &amp; DIVISIONS VIEWER
+              DTRS GIS TRACK &amp; DIVISIONS VIEWER
             </span>
             <span className="bg-orange-50 text-orange-600 font-mono text-[9px] font-bold px-2 py-0.5 rounded-full border border-orange-200">
               EMBEDDED
@@ -899,7 +899,7 @@ export default function DashboardPage() {
             <div>
               <div className="flex items-center gap-2 flex-wrap">
                 <h1 className="text-base sm:text-lg lg:text-xl font-black tracking-tight text-[#172b54] uppercase">
-                  TRETA MAPPING &amp; DIVISIONS SYSTEM
+                  DTRS MAPPING &amp; DIVISIONS SYSTEM
                 </h1>
                 <span className="bg-orange-50 text-orange-600 font-mono text-[9px] sm:text-[10px] font-extrabold px-2 py-0.5 rounded-full border border-orange-200 tracking-wider">
                   SIH 26028

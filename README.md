@@ -1,4 +1,4 @@
-#  Treta Mapping System — SIH 26028
+#  DTRS Mapping System — SIH 26028
 
 [![Next.js](https://img.shields.io/badge/Next.js-16.3-black?style=flat&logo=next.js)](https://nextjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-7.0-blue?style=flat&logo=typescript)](https://www.typescriptlang.org/)
@@ -13,7 +13,7 @@
 
 ##  Overview
 
-The **Treta Mapping System** is a GIS platform and dynamic ETA forecasting engine developed for **Smart India Hackathon (Problem Statement 26028)**. 
+The **DTRS Mapping System** is a GIS platform and dynamic ETA forecasting engine developed for **Smart India Hackathon (Problem Statement 26028)**. 
 
 The system solves the challenge of unpredictable railway delays by integrating official train timetable databases with real OpenStreetMap railway geometries, simulated train kinematics, downstream delay propagation, and junction buffer (slack) absorption.
 

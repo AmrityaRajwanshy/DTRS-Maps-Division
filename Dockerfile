@@ -1,4 +1,4 @@
-# Multi-stage Dockerfile for Treta Mapping System Standalone Deployment
+# Multi-stage Dockerfile for DTRS Mapping System Standalone Deployment
 FROM node:20-slim AS builder
 
 WORKDIR /app

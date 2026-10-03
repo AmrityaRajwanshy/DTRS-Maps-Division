@@ -55,7 +55,7 @@ export async function lookupStationOsm(
 
     const res = await fetch(url, {
       headers: {
-        'User-Agent': 'TretaMappingSystem/1.0 (SIH-26028-IndianRailways; dev@treta.rail)'
+        'User-Agent': 'DTRSMappingSystem/1.0 (SIH-26028-IndianRailways; dev@dtrs.rail)'
       }
     });
 

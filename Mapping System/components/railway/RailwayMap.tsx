@@ -665,7 +665,7 @@ export const RailwayMap: React.FC<RailwayMapProps> = ({
     }
   }, [stops, showStateDivisions, stateCrossings]);
 
-  // 4B. Render Station-to-Station Block Divisions (TRETA TS Segments)
+  // 4B. Render Station-to-Station Block Divisions (DTRS TS Segments)
   useEffect(() => {
     const map = mapRef.current;
     if (!map) return;

@@ -146,7 +146,7 @@ export const MapControlsBar: React.FC<MapControlsBarProps> = ({
         {/* Station Block Segments Layer Toggle */}
         <button
           onClick={onToggleStationDivisions}
-          title="Toggle Station-to-Station Block Division Segments (TRETA TS IDs)"
+          title="Toggle Station-to-Station Block Division Segments (DTRS TS IDs)"
           className={`px-3 py-1.5 rounded-xl transition-all flex items-center gap-1.5 text-xs font-semibold border cursor-pointer active:scale-95 whitespace-nowrap shadow-xs ${
             showStationDivisions
               ? 'bg-indigo-600 hover:bg-indigo-500 text-white border-indigo-500 ring-1 ring-indigo-300'

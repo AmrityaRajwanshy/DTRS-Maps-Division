@@ -2,12 +2,12 @@ import type { Metadata, Viewport } from 'next';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'Treta Railway Mapping | Dynamic ETA Forecasting System (SIH 26028)',
+  title: 'DTRS Railway Mapping | Dynamic ETA Forecasting System (SIH 26028)',
   description: 'Next.js + Leaflet database-driven railway route visualization and dynamic ETA delay propagation engine.',
   appleWebApp: {
     capable: true,
     statusBarStyle: 'black-translucent',
-    title: 'Treta Railway',
+    title: 'DTRS Railway',
   },
 };
 

@@ -154,7 +154,8 @@ body {
   outline: none !important;
 }
 
-.leaflet-marker-icon.treta-station-icon {
+.leaflet-marker-icon.treta-station-icon,
+.leaflet-marker-icon.dtrs-station-icon {
   background: transparent !important;
   border: none !important;
   outline: none !important;

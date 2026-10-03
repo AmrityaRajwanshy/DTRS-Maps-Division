@@ -1,4 +1,4 @@
-#  Treta Mapping System — Standalone Extraction & Deployment Guide
+#  DTRS Mapping System — Standalone Extraction & Deployment Guide
 
 This document describes how to extract the **`Mapping System`** folder out of this repository and deploy it as an **independent, self-contained microservice or standalone web application**.
 

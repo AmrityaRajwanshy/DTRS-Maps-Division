@@ -1,4 +1,4 @@
-#  Vercel Deployment Guide — Treta Mapping System (SIH 26028)
+#  Vercel Deployment Guide — DTRS Mapping System (SIH 26028)
 
 This directory is **100% pre-configured and optimized for seamless zero-config deployment on Vercel**.
 

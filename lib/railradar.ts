@@ -51,7 +51,7 @@ export async function fetchRailRadarLiveTelemetry(
           headers: {
             'x-api-key': RAILRADAR_API_KEY,
             'Authorization': `Bearer ${RAILRADAR_API_KEY}`,
-            'User-Agent': 'TretaMapping-RailRadar/2.0',
+            'User-Agent': 'DTRSMapping-RailRadar/2.0',
             'Accept': 'application/json'
           },
           next: { revalidate: 10 }
@@ -129,7 +129,7 @@ export async function fetchRailRadarLiveTelemetry(
         bearing = interp.bearing;
       }
 
-      // Match corresponding TRETA division segment from infrastructure
+      // Match corresponding DTRS division segment from infrastructure
       if (divisions.length > 0) {
         const matchedDiv = divisions.find(
           d => (d.from_station_code === fromStop.station_code && d.to_station_code === toStop.station_code) ||

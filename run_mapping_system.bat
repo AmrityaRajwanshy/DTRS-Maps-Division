@@ -1,6 +1,6 @@
 @echo off
 echo ===============================================================================
-echo     STARTING STANDALONE TRETA MAPPING SYSTEM (PORT 3001)
+echo     STARTING STANDALONE DTRS MAPPING SYSTEM (PORT 3001)
 echo ===============================================================================
 cd /d "%~dp0"
 if not exist "node_modules" (
